@@ -119,7 +119,7 @@ svg{shape-rendering:crispEdges;}
   position:absolute; top:0; left:0; right:0; height:25px; background:#c6a6a3; color:#352d41;
   padding:5px 11px; font-size:11px; letter-spacing:1.5px; text-align:left; font-family:var(--ui-font); font-weight:bold;
 }
-.welcome-bar:after{ content:'−  □  ×'; float:right; }
+.welcome-bar:after{ content:''; }
 .welcome-title{ font-family:var(--pixel-font); font-size:22px; color:#ffe0b1; letter-spacing:2px; margin:10px 0 12px; text-shadow:3px 3px #744e64; }
 .welcome-sub{ color:#d1c4d3; line-height:1.6; font-size:12px; max-width:540px; margin:0 auto 22px; }
 
@@ -530,8 +530,8 @@ svg{shape-rendering:crispEdges;}
         <button id="dockNotes" title="Notes">
           <svg viewBox="0 0 24 24"><path d="M5 3h14v18H5V3zm2 2v14h10V5H7zm2 3h6v2H9V8zm0 4h6v2H9v-2zm0 4h4v2H9v-2z"/></svg>
         </button>
-        <button id="dockMusic" title="Music / YouTube">
-          <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+        <button id="dockMusic" title="YouTube">
+          <svg viewBox="0 0 24 24"><path d="M21 7.2c-.2-1.2-1-2-2.2-2.2C17.1 4.7 14.5 4.5 12 4.5S6.9 4.7 5.2 5C4 5.2 3.2 6 3 7.2 2.7 8.5 2.5 10.3 2.5 12s.2 3.5.5 4.8c.2 1.2 1 2 2.2 2.2 1.7.3 4.3.5 6.8.5s5.1-.2 6.8-.5c1.2-.2 2-1 2.2-2.2.3-1.3.5-3.1.5-4.8s-.2-3.5-.5-4.8zM10 15.5v-7l6 3.5-6 3.5z"/></svg>
         </button>
         <button id="dockVinyl" title="Retro Vinyl Player">
           <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-11c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zm0 4c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z"/></svg>
@@ -672,14 +672,14 @@ svg{shape-rendering:crispEdges;}
 </div>
 
 <div class="float-window pixel-window" id="musicWindow" style="top:120px;left:200px;">
-  <div class="pixel-titlebar" data-drag><span>MUSIC / YOUTUBE</span><div class="tb-btns"><div class="tb-btn min" id="musicMaxBtn" title="Maximize">□</div><div class="tb-btn" data-close-float="musicWindow">X</div></div></div>
+  <div class="pixel-titlebar" data-drag><span>YOUTUBE</span><div class="tb-btns"><div class="tb-btn min" id="musicMaxBtn" title="Maximize">□</div><div class="tb-btn" data-close-float="musicWindow">X</div></div></div>
   <div class="pixel-window-body">
     <div class="music-row">
-      <input id="musicUrlInput" type="text" placeholder="paste a YouTube or Spotify link...">
+      <input id="musicUrlInput" type="text" placeholder="paste your YouTube link...">
       <button class="pixel-btn small" id="musicLoadBtn">LOAD</button>
     </div>
-    <div id="musicEmbedArea">no track loaded yet.</div>
-    <div class="music-suggestion" id="musicSuggestion"></div>
+    <div id="musicEmbedArea">no video loaded yet.</div>
+    <div class="music-suggestion hidden" id="musicSuggestion"></div>
     <div class="volume-slider-row" style="display:flex; align-items:center; gap:8px; margin-top:10px; padding:6px 8px; background:var(--cream-dark); border:2px solid var(--outline); font-size:10px;">
       <span>🔊 VOL</span>
       <input type="range" id="musicVolSlider" min="0" max="1" step="0.05" value="0.7" style="flex:1; accent-color:var(--navy); cursor:pointer;">
@@ -2531,7 +2531,7 @@ function stopAllAudio(){
   stopSpaceMusic();
   stopVinylPlayer();
   const musicArea = document.getElementById('musicEmbedArea');
-  if(musicArea) musicArea.innerHTML = 'no track loaded yet.';
+  if(musicArea) musicArea.innerHTML = 'no video loaded yet.';
   const vinylArea = document.getElementById('vinylEmbedArea');
   if(vinylArea) vinylArea.innerHTML = '';
   const v1 = document.getElementById('takeoffVideo');
@@ -2652,7 +2652,7 @@ function closeFloat(id){
   
   if(id === 'musicWindow'){
     const area = document.getElementById('musicEmbedArea');
-    if(area) area.innerHTML = 'no track loaded yet.';
+    if(area) area.innerHTML = 'no video loaded yet.';
   } else if(id === 'vinylWindow'){
     stopVinylPlayer();
     const area = document.getElementById('vinylEmbedArea');
@@ -2773,9 +2773,9 @@ function toEmbedUrl(raw){
 document.getElementById('musicLoadBtn').addEventListener('click', ()=>{
   const raw = document.getElementById('musicUrlInput').value.trim();
   const area = document.getElementById('musicEmbedArea');
-  if(!raw){ area.textContent = 'paste a link first.'; return; }
+  if(!raw){ area.textContent = 'paste a YouTube link first.'; return; }
   const embed = toEmbedUrl(raw);
-  if(!embed){ area.textContent = "couldn't turn that into a playable embed — try a standard YouTube or Spotify link."; return; }
+  if(!embed || embed.type!=='youtube'){ area.textContent = "that link could not be played — try a standard YouTube link."; return; }
   area.innerHTML = '';
   const iframe = document.createElement('iframe');
   iframe.src = embed.url;
